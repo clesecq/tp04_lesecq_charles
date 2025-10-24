@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: tp03-angular
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist/tp03/browser
+    pullRequestPreviewsEnabled: false

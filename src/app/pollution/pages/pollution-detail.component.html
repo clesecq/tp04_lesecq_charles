@@ -1,0 +1,154 @@
+<section class="page">
+  <header class="page__header">
+    <a routerLink="/pollutions">Retour a la liste</a>
+    <h2>Detail de la declaration</h2>
+  </header>
+
+  @if (statusMessage()) {
+    <p class="alert alert--success">{{ statusMessage() }}</p>
+  }
+
+  @if (error() && !isLoading()) {
+    <p class="alert alert--error">{{ error() }}</p>
+  }
+
+  @if (pollution(); as pollutionData) {
+    <section class="panel">
+      <h3>Informations principales</h3>
+      <div class="summary">
+        <div class="summary__item">
+          <span class="summary__label">Titre</span>
+          <span class="summary__value">{{ pollutionData.title }}</span>
+        </div>
+        <div class="summary__item">
+          <span class="summary__label">Type</span>
+          <span
+            class="badge"
+            [class.badge--plastique]="pollutionData.type === 'plastique'"
+            [class.badge--chimique]="pollutionData.type === 'chimique'"
+            [class.badge--depot]="pollutionData.type === 'depot-sauvage'"
+            [class.badge--eau]="pollutionData.type === 'eau'"
+            [class.badge--air]="pollutionData.type === 'air'"
+            [class.badge--autre]="pollutionData.type === 'autre'"
+          >
+            {{ labelType(pollutionData.type) }}
+          </span>
+        </div>
+        <div class="summary__item">
+          <span class="summary__label">Observation</span>
+          <span class="summary__value">{{ pollutionData.observedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="summary__item">
+          <span class="summary__label">Lieu</span>
+          <span class="summary__value">{{ pollutionData.location }}</span>
+        </div>
+        <div class="summary__item">
+          <span class="summary__label">Latitude</span>
+          <span class="summary__value">{{ pollutionData.latitude }}</span>
+        </div>
+        <div class="summary__item">
+          <span class="summary__label">Longitude</span>
+          <span class="summary__value">{{ pollutionData.longitude }}</span>
+        </div>
+        <div class="summary__item summary__item--full">
+          <span class="summary__label">Description</span>
+          <span class="summary__value">{{ pollutionData.description }}</span>
+        </div>
+        @if (pollutionData.photoUrl) {
+          <div class="summary__item">
+            <span class="summary__label">Photo</span>
+            <a
+              class="summary__value summary__value--link"
+              [href]="pollutionData.photoUrl"
+              target="_blank"
+              rel="noopener"
+            >
+              Ouvrir le lien
+            </a>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Mettre a jour</h3>
+      <form class="form" [formGroup]="form" (ngSubmit)="onSave()">
+        <div class="form__grid">
+          <label>
+            <span>Titre</span>
+            <input type="text" formControlName="title" />
+            @if (form.controls.title.invalid && form.controls.title.touched) {
+              <span class="form__error">Le titre est requis (3 caracteres minimum).</span>
+            }
+          </label>
+          <label>
+            <span>Type</span>
+            <select formControlName="type">
+              @for (option of typeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Date et heure</span>
+            <input type="datetime-local" formControlName="observedAt" />
+            @if (form.controls.observedAt.touched && form.controls.observedAt.hasError('required')) {
+              <span class="form__error">Date obligatoire.</span>
+            }
+            @if (form.controls.observedAt.touched && form.controls.observedAt.hasError('invalidDate')) {
+              <span class="form__error">Format de date invalide.</span>
+            }
+          </label>
+          <label>
+            <span>Lieu</span>
+            <input type="text" formControlName="location" />
+            @if (form.controls.location.invalid && form.controls.location.touched) {
+              <span class="form__error">Le lieu est requis.</span>
+            }
+          </label>
+          <label>
+            <span>Latitude</span>
+            <input type="number" formControlName="latitude" step="0.0001" min="-90" max="90" />
+            @if (form.controls.latitude.touched && form.controls.latitude.hasError('finiteNumber')) {
+              <span class="form__error">La latitude doit etre un nombre valide.</span>
+            }
+            @if (form.controls.latitude.touched && (form.controls.latitude.hasError('min') || form.controls.latitude.hasError('max'))) {
+              <span class="form__error">Latitude entre -90 et 90.</span>
+            }
+          </label>
+          <label>
+            <span>Longitude</span>
+            <input type="number" formControlName="longitude" step="0.0001" min="-180" max="180" />
+            @if (form.controls.longitude.touched && form.controls.longitude.hasError('finiteNumber')) {
+              <span class="form__error">La longitude doit etre un nombre valide.</span>
+            }
+            @if (form.controls.longitude.touched && (form.controls.longitude.hasError('min') || form.controls.longitude.hasError('max'))) {
+              <span class="form__error">Longitude entre -180 et 180.</span>
+            }
+          </label>
+        </div>
+        <label class="form__row">
+          <span>Description</span>
+          <textarea rows="3" formControlName="description"></textarea>
+          @if (form.controls.description.invalid && form.controls.description.touched) {
+            <span class="form__error">La description est requise (10 caracteres minimum).</span>
+          }
+        </label>
+        <label class="form__row">
+          <span>Photo (URL)</span>
+          <input type="url" formControlName="photoUrl" />
+        </label>
+        <div class="form__actions">
+          <button type="submit" [disabled]="form.invalid || isLoading()">Enregistrer</button>
+          <button type="button" class="form__danger" (click)="onDelete()" [disabled]="isLoading()">Supprimer</button>
+        </div>
+      </form>
+    </section>
+  } @else {
+    @if (isLoading()) {
+      <p class="alert">Chargement de la declaration...</p>
+    } @else {
+      <p class="alert">Cette declaration est introuvable.</p>
+    }
+  }
+</section>

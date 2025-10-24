@@ -57,3 +57,19 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Deployer sur Render.com
+
+Ce depot contient deja les fichiers necessaires pour une mise en production sur [Render.com](https://render.com):
+
+- `render.yaml` declare un service **Static Site** avec la commande de build `npm install && npm run build` et publie le dossier `dist/tp03/browser`.
+- `static.json` configure une redirection globale vers `index.html`, indispensable pour une application Angular monopage.
+
+### Procedure
+
+1. Pousser les changements sur votre depot Git.
+2. Sur le tableau de bord Render, creer un **Static Site** a partir de ce depot.
+3. Render detecte automatiquement `render.yaml`; valider les parametres proposes puis lancer le deploiement.
+4. Une fois le build termine, le site est accessible a l’adresse fournie par Render (ex: `https://tp03-angular.onrender.com`).
+
+Pour les builds suivants, Render regenerera automatiquement le site a chaque push sur la branche surveillee.

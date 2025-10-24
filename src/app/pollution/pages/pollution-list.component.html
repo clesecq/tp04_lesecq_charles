@@ -1,0 +1,178 @@
+<section class="page">
+  <header class="page__header">
+    <div>
+      <h2>Desk de surveillance des pollutions</h2>
+      <p>Ajoutez, filtrez et suivez les derniers releves de pollutions atmospheriques.</p>
+    </div>
+    <a routerLink="/pollutions" class="page__link" [class.page__link--active]="true">Liste</a>
+  </header>
+
+  @if (!showRecap()) {
+    <section class="panel">
+      <h3>Declarer une pollution</h3>
+      <form class="form" [formGroup]="createForm" (ngSubmit)="onCreate()">
+        <div class="form__grid">
+          <label>
+            <span>Titre</span>
+            <input type="text" formControlName="title" placeholder="Decrivez rapidement la pollution" />
+            @if (createForm.controls.title.invalid && createForm.controls.title.touched) {
+              <span class="form__error">Le titre est requis (3 caracteres minimum).</span>
+            }
+          </label>
+          <label>
+            <span>Type</span>
+            <select formControlName="type">
+              @for (option of typeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Date et heure de lobservation</span>
+            <input type="datetime-local" formControlName="observedAt" />
+            @if (createForm.controls.observedAt.touched && createForm.controls.observedAt.hasError('required')) {
+              <span class="form__error">Indiquez la date de lobservation.</span>
+            }
+            @if (createForm.controls.observedAt.touched && createForm.controls.observedAt.hasError('invalidDate')) {
+              <span class="form__error">Format de date invalide.</span>
+            }
+          </label>
+          <label>
+            <span>Lieu</span>
+            <input type="text" formControlName="location" placeholder="Ville, adresse ou repere" />
+            @if (createForm.controls.location.invalid && createForm.controls.location.touched) {
+              <span class="form__error">Le lieu est requis.</span>
+            }
+          </label>
+          <label>
+            <span>Latitude</span>
+            <input type="number" formControlName="latitude" step="0.0001" min="-90" max="90" />
+            @if (createForm.controls.latitude.touched && createForm.controls.latitude.hasError('finiteNumber')) {
+              <span class="form__error">La latitude doit etre un nombre valide.</span>
+            }
+            @if (createForm.controls.latitude.touched && (createForm.controls.latitude.hasError('min') || createForm.controls.latitude.hasError('max'))) {
+              <span class="form__error">Latitude comprise entre -90 et 90.</span>
+            }
+          </label>
+          <label>
+            <span>Longitude</span>
+            <input type="number" formControlName="longitude" step="0.0001" min="-180" max="180" />
+            @if (createForm.controls.longitude.touched && createForm.controls.longitude.hasError('finiteNumber')) {
+              <span class="form__error">La longitude doit etre un nombre valide.</span>
+            }
+            @if (createForm.controls.longitude.touched && (createForm.controls.longitude.hasError('min') || createForm.controls.longitude.hasError('max'))) {
+              <span class="form__error">Longitude comprise entre -180 et 180.</span>
+            }
+          </label>
+        </div>
+        <label class="form__row">
+          <span>Description</span>
+          <textarea rows="3" formControlName="description" placeholder="Expliquez ce qui a ete observe"></textarea>
+          @if (createForm.controls.description.invalid && createForm.controls.description.touched) {
+            <span class="form__error">La description est requise (10 caracteres minimum).</span>
+          }
+        </label>
+        <label class="form__row">
+          <span>Photo (URL)</span>
+          <input type="url" formControlName="photoUrl" placeholder="https://..." />
+        </label>
+        <div class="form__actions">
+          <button type="submit" [disabled]="createForm.invalid || isLoading()">Declarer</button>
+        </div>
+      </form>
+    </section>
+  } @else {
+    <section class="panel">
+      <app-pollution-recap [data]="recapPollution()" (resetRequested)="onRecapReset()"></app-pollution-recap>
+    </section>
+  }
+
+  <section class="panel">
+    <h3>Filtres</h3>
+    <form class="filters" [formGroup]="filtersForm">
+      <label>
+        <span>Titre</span>
+        <input type="search" formControlName="title" placeholder="Filtrer par titre" />
+      </label>
+      <label>
+        <span>Lieu</span>
+        <input type="search" formControlName="location" placeholder="Ville ou adresse" />
+      </label>
+      <label>
+        <span>Type</span>
+        <select formControlName="type">
+          <option value="all">Tous les types</option>
+          @for (option of typeOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </label>
+    </form>
+  </section>
+
+  @if (error()) {
+    <p class="alert alert--error">{{ error() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="alert">Chargement des donnees en cours...</p>
+  }
+
+  @if (!isLoading() && filteredPollutions().length === 0) {
+    <p class="alert">Aucune declaration ne correspond aux filtres.</p>
+  }
+
+  @if (filteredPollutions().length > 0) {
+    <section class="panel panel--table">
+      <table>
+        <caption class="sr-only">Declarations de pollutions</caption>
+        <thead>
+          <tr>
+            <th scope="col">Titre</th>
+            <th scope="col">Type</th>
+            <th scope="col">Observation</th>
+            <th scope="col">Lieu</th>
+            <th scope="col">Coordonnees</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pollution of filteredPollutions(); track pollution.id) {
+            <tr>
+              <td>
+                <strong>{{ pollution.title }}</strong>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge--plastique]="pollution.type === 'plastique'"
+                  [class.badge--chimique]="pollution.type === 'chimique'"
+                  [class.badge--depot]="pollution.type === 'depot-sauvage'"
+                  [class.badge--eau]="pollution.type === 'eau'"
+                  [class.badge--air]="pollution.type === 'air'"
+                  [class.badge--autre]="pollution.type === 'autre'"
+                >
+                  {{ labelType(pollution.type) }}
+                </span>
+              </td>
+              <td>{{ pollution.observedAt | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ pollution.location }}</td>
+              <td>
+                <span>{{ pollution.latitude }}, {{ pollution.longitude }}</span>
+                @if (pollution.photoUrl) {
+                  <p class="table__note">
+                    <a [href]="pollution.photoUrl" target="_blank" rel="noopener">Voir la photo</a>
+                  </p>
+                }
+              </td>
+              <td class="table__actions">
+                <a [routerLink]="['/pollutions', pollution.id]">Details</a>
+                <button type="button" (click)="onDelete(pollution.id)">Supprimer</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</section>
