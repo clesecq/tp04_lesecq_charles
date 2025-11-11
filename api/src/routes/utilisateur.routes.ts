@@ -1,7 +1,7 @@
-import express from "express";
-import utilisateur from "../controllers/utilisateur.controllers.js";
+import express, { Application } from "express";
+import * as utilisateur from "../controllers/utilisateur.controllers.js";
 
-export default app => {
+export default (app: Application): void => {
   const router = express.Router();
 
   // Create a new user

@@ -1,9 +1,10 @@
 import { Sequelize } from "sequelize";
-import { BDD } from '../config';
+import { DATABASE } from '../config.js';
 import utilisateur from "./utilisateurs.model.js";
+import pollution from "./pollution.model.js";
 
 const sequelize = new Sequelize(
-  `postgres://${BDD.user}:${BDD.password}@${BDD.host}/${BDD.bdname}`,
+  `postgres://${DATABASE.user}:${DATABASE.password}@${DATABASE.host}/${DATABASE.name}`,
   {
     dialect: 'postgres',
     protocol: 'postgres',
@@ -22,5 +23,6 @@ const db = {};
 db.sequelize = sequelize;
 
 db.utilisateurs = utilisateur(sequelize);
+db.pollutions = pollution(sequelize);
 
 export default db;

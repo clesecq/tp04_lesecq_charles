@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-export const ACCESS_TOKEN_SECRET = "EMMA123";
+export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 
 export const DATABASE = {
     "host": process.env.DB_HOST || "localhost",
