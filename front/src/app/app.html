@@ -21,6 +21,22 @@
       >
         Utilisateurs
       </a>
+      
+      @if (authService.isAuthenticated()) {
+        <div class="user-info">
+          <span class="user-name">{{ authService.currentUser()?.prenom }} {{ authService.currentUser()?.nom }}</span>
+          <button class="btn-logout" (click)="authService.logout()">Déconnexion</button>
+        </div>
+      } @else {
+        <a
+          routerLink="/login"
+          routerLinkActive="layout__link--active"
+          ariaCurrentWhenActive="page"
+          class="layout__link"
+        >
+          Connexion
+        </a>
+      }
     </nav>
   </header>
 

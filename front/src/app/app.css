@@ -41,6 +41,7 @@ h1 {
 nav {
 	display: flex;
 	gap: 0.75rem;
+	align-items: center;
 }
 
 .layout__link {
@@ -51,6 +52,37 @@ nav {
 	color: #1f2937;
 	font-weight: 600;
 	transition: all 0.2s ease;
+}
+
+.user-info {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.5rem 1rem;
+	background: #eef2ff;
+	border-radius: 999px;
+	border: 1px solid #c7d2fe;
+}
+
+.user-name {
+	font-weight: 600;
+	color: #312e81;
+}
+
+.btn-logout {
+	padding: 0.35rem 0.75rem;
+	border: 1px solid #4338ca;
+	background: white;
+	color: #4338ca;
+	border-radius: 999px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+	background: #4338ca;
+	color: white;
 }
 
 .layout__link:hover {
